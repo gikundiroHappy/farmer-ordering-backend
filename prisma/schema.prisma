@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  fullName    String?
+  phoneNumber String   @unique
+  role        Role
+  orders      Order[]
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id             Int      @id @default(autoincrement())
+  landArea       Float
+  fertilizerQty  Float
+  status         OrderStatus @default(PENDING)
+  farmer         User     @relation(fields: [farmerId], references: [id])
+  farmerId       Int
+  createdAt      DateTime @default(now())
+}
+
+model Rate {
+  id    Int   @id @default(autoincrement())
+  value Float
+}
+
+enum Role {
+  FARMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  DECLINED
+}
