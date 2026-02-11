@@ -45,7 +45,8 @@ exports.login = async (req, res) => {
         admin = await prisma.user.create({
           data: {
             phoneNumber,
-            role: Role.ADMIN,
+            fullName: "Admin",
+            role: Role.ADMIN,           
           },
         });
       }
@@ -53,6 +54,7 @@ exports.login = async (req, res) => {
       return res.json({
         token: generateToken(admin),
         role: "ADMIN",
+        fullName: admin.fullName,
       });
     }
 
@@ -68,6 +70,7 @@ exports.login = async (req, res) => {
     res.json({
       token: generateToken(farmer),
       role: "FARMER",
+      fullName: farmer.fullName,
     });
   } catch (err) {
     console.error(err);

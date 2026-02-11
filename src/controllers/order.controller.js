@@ -1,6 +1,5 @@
 const prisma = require("../lib/prisma");
 
-// Create order (Farmer)
 exports.createOrder = async (req, res) => {
   try {
     const { landArea } = req.body;
@@ -9,7 +8,6 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: "Invalid land area" });
     }
 
-    // Get current fertilizer rate
     const rate = await prisma.rate.findFirst({ orderBy: { id: "desc" } });
     if (!rate) return res.status(400).json({ message: "Rate not set by admin" });
 
@@ -31,7 +29,6 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-// Get farmer's orders
 exports.getMyOrders = async (req, res) => {
   const orders = await prisma.order.findMany({
     where: { farmerId: req.user.id },

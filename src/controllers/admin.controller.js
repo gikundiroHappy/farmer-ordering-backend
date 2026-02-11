@@ -1,6 +1,5 @@
 const prisma = require("../lib/prisma");
 
-// Get all orders (Admin)
 exports.getAllOrders = async (req, res) => {
   const orders = await prisma.order.findMany({
     include: { farmer: true },
@@ -9,7 +8,6 @@ exports.getAllOrders = async (req, res) => {
   res.json({ orders });
 };
 
-// Approve order
 exports.approveOrder = async (req, res) => {
   const { id } = req.params;
   const order = await prisma.order.update({
@@ -19,7 +17,6 @@ exports.approveOrder = async (req, res) => {
   res.json({ message: "Order approved", order });
 };
 
-// Decline order
 exports.declineOrder = async (req, res) => {
   const { id } = req.params;
   const order = await prisma.order.update({
@@ -29,7 +26,6 @@ exports.declineOrder = async (req, res) => {
   res.json({ message: "Order declined", order });
 };
 
-// Dashboard metrics
 exports.getMetrics = async (req, res) => {
   const approved = await prisma.order.count({ where: { status: "APPROVED" } });
   const declined = await prisma.order.count({ where: { status: "DECLINED" } });
