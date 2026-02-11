@@ -8,9 +8,7 @@ const adminRoutes = require("./routes/admin.routes");
 const allowedOrigins = [
   'http://localhost:5173',                  
   'http://localhost:3000',                    
-  'https://farmer-ordering-frontend-three.vercel.app/',
-  'https://farmer-ordering-frontend-git-main-gmariehappy-7011.vercel.app',
-  'https://farmer-ordering-frontend-gmariehappy-7011.vercel.app',
+  'https://farmer-ordering-frontend-three.vercel.app'
 ];
 
 app.use(cors({
