@@ -1,5 +1,6 @@
 const prisma = require("../lib/prisma");
 const jwt = require("jsonwebtoken");
+const { Role } = require("@prisma/client");
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -9,61 +10,67 @@ const generateToken = (user) => {
   );
 };
 
-// Farmer Registration
 exports.registerFarmer = async (req, res) => {
-  const { fullName, phoneNumber } = req.body;
+  try {
+    const { fullName, phoneNumber } = req.body;
 
-  const existing = await prisma.user.findUnique({ where: { phoneNumber } });
-  if (existing) {
-    return res.status(400).json({ message: "Phone number already registered" });
+    const existing = await prisma.user.findUnique({ where: { phoneNumber } });
+    if (existing) {
+      return res.status(400).json({ message: "Phone number already registered" });
+    }
+
+    const farmer = await prisma.user.create({
+      data: {
+        fullName,
+        phoneNumber,
+        role: Role.FARMER,
+      },
+    });
+
+    res.json({ message: "Farmer registered", farmer });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-
-  const farmer = await prisma.user.create({
-    data: {
-      fullName,
-      phoneNumber,
-      role: "FARMER",
-    },
-  });
-
-  res.json({ message: "Farmer registered", farmer });
 };
 
-// Login (Farmer + Admin)
 exports.login = async (req, res) => {
-  const { phoneNumber, otp } = req.body;
+  try {
+    const { phoneNumber, otp } = req.body;
 
-  // Admin login
-  if (phoneNumber === "25078815000" && otp === "0001") {
-    let admin = await prisma.user.findUnique({ where: { phoneNumber } });
+    if (phoneNumber === "25078815000" && otp === "0001") {
+      let admin = await prisma.user.findUnique({ where: { phoneNumber } });
 
-    if (!admin) {
-      admin = await prisma.user.create({
-        data: {
-          phoneNumber,
-          role: "ADMIN",
-        },
+      if (!admin) {
+        admin = await prisma.user.create({
+          data: {
+            phoneNumber,
+            role: Role.ADMIN,
+          },
+        });
+      }
+
+      return res.json({
+        token: generateToken(admin),
+        role: "ADMIN",
       });
     }
 
-    return res.json({
-      token: generateToken(admin),
-      role: "ADMIN",
+    if (otp !== "1234") {
+      return res.status(401).json({ message: "Invalid OTP" });
+    }
+
+    const farmer = await prisma.user.findUnique({ where: { phoneNumber } });
+    if (!farmer) {
+      return res.status(404).json({ message: "Farmer not found" });
+    }
+
+    res.json({
+      token: generateToken(farmer),
+      role: "FARMER",
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-
-  // Farmer login
-  if (otp !== "1234") {
-    return res.status(401).json({ message: "Invalid OTP" });
-  }
-
-  const farmer = await prisma.user.findUnique({ where: { phoneNumber } });
-  if (!farmer) {
-    return res.status(404).json({ message: "Farmer not found" });
-  }
-
-  res.json({
-    token: generateToken(farmer),
-    role: "FARMER",
-  });
 };
