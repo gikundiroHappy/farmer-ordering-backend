@@ -11,7 +11,8 @@ const adminOnly = (req, res, next) => {
 };
 
 router.post("/rate", authMiddleware, adminOnly, rateController.setRate);
-router.get("/rate", authMiddleware, adminOnly, rateController.getRate);
+router.get("/rate", authMiddleware, rateController.getRate);
+router.get( "/rate-history", authMiddleware, adminOnly, rateController.getRateHistory);
 
 router.get("/orders", authMiddleware, adminOnly, adminController.getAllOrders);
 router.patch("/orders/:id/approve", authMiddleware, adminOnly, adminController.approveOrder);

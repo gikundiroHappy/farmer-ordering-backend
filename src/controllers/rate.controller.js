@@ -21,3 +21,18 @@ exports.getRate = async (req, res) => {
   const rate = await prisma.rate.findFirst({ orderBy: { id: "desc" } });
   res.json({ rate });
 };
+
+exports.getRateHistory = async (req, res) => {
+  try {
+    const history = await prisma.rate.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.json({ history });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch rate history" });
+  }
+};
